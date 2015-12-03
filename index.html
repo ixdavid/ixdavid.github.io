@@ -18,14 +18,12 @@ body {
   padding: 0;
   overflow: hidden;
 }
-</style>
-</head>
 
-<body>
+		</style>
+	</head>
+	<body>
 
-</body>
-
-<script>
+		<script>
 /*
  * Debug parameters.
  */
@@ -53,7 +51,9 @@ WebVRConfig = {
   // Prevent distortion from happening.
   PREVENT_DISTORTION: true, // Default: false.
 };
+
 </script>
+
 
 <!--
   three.js 3d library
@@ -83,115 +83,221 @@ WebVRConfig = {
 <!-- <script src="js/video-renderer.js"></script>
  -->
 
+		<!-- <div id="info"><a href="http://threejs.org" target="_blank">vr_Mapping</a> - ocean/sky</div> -->
+
+	<!--	<script src="/build/three.min.js"></script> -->
+
+		<script src="js/controls/OrbitControls.js"></script>
+		<script src="js/Mirror.js"></script>
+		<script src="js/WaterShader.js"></script>
+
+		<script src="js/Detector.js"></script>
+		<script src="js/libs/stats.min.js"></script>
+
 <script>
-//Setup three.js WebGL renderer
-var renderer = new THREE.WebGLRenderer({ antialias: true });
-renderer.setPixelRatio(window.devicePixelRatio);
 
-// Append the canvas element created by the renderer to document body element.
-document.body.appendChild(renderer.domElement);
+			// if ( ! Detector.webgl ) {
 
-// Create a three.js scene.
-var scene = new THREE.Scene();
+			// 	Detector.addGetWebGLMessage();
+			// 	document.getElementById( 'container' ).innerHTML = "";
 
-// Create a three.js camera.
-var camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 10000);
+			// }
 
-// Apply VR headset positional data to camera.
-var controls = new THREE.VRControls(camera);
+			var container, stats;
+			var camera, controls, manager, effect, scene, renderer;
+			var sphere;
 
-// Apply VR stereo rendering to renderer.
-var effect = new THREE.VREffect(renderer);
-effect.setSize(window.innerWidth, window.innerHeight);
+			var parameters = {
+				width: 2000,
+				height: 2000,
+				widthSegments: 250,
+				heightSegments: 250,
+				depth: 1500,
+				param: 4,
+				filterparam: 1
+			};
+
+			var waterNormals;
+
+			init();
+			animate();
+
+			function init() {
+
+				// container = document.createElement( 'div' );
+				// document.body.appendChild( container );
+
+				renderer = new THREE.WebGLRenderer({ antialias: true });
+				renderer.setPixelRatio( window.devicePixelRatio );
+				
+				// Append the canvas element created by the renderer to document body element.
+				document.body.appendChild(renderer.domElement);
+
+				// renderer.setSize( window.innerWidth, window.innerHeight );
+				// container.appendChild( renderer.domElement );
+
+				renderer.setClearColor (0xffffff);
+
+				scene = new THREE.Scene();
+
+				camera = new THREE.PerspectiveCamera( 55, window.innerWidth / window.innerHeight, 0.5, 3000000 );
+				camera.position.set( 2000, 750, 2000 );
+
+				controls = new THREE.VRControls(camera);
+				// controls.enablePan = false;
+				// controls.minDistance = 1000.0;
+				// controls.maxDistance = 5000.0;
+				// controls.maxPolarAngle = Math.PI * 0.495;
+				// controls.center.set( 0, 500, 0 );
 
 
-// Add a repeating grid as a skybox.
-var boxWidth = 5;
-var texture = THREE.ImageUtils.loadTexture(
-  'img/ny.jpg'
-);
-texture.wrapS = THREE.RepeatWrapping;
-texture.wrapT = THREE.RepeatWrapping;
-texture.repeat.set(boxWidth, boxWidth);
+				effect = new THREE.VREffect(renderer);
+				effect.setSize(window.innerWidth, window.innerHeight);
 
-var geometry = new THREE.BoxGeometry(boxWidth, boxWidth, boxWidth);
-var material = new THREE.MeshBasicMaterial({
-  map: texture,
-  //color: 0x01BE00,
-  side: THREE.BackSide
-});
+				// Create a VR manager helper to enter and exit VR mode.
+				manager = new WebVRManager(renderer, effect, {hideButton: false});
 
-// var skybox = new THREE.Mesh(geometry, material);
-// scene.add(skybox);
+				scene.add( new THREE.AmbientLight( 0x444444 ) );
+
+				var light = new THREE.DirectionalLight( 0xffffbb, 1 );
+				light.position.set( - 1, 1, - 1 );
+				scene.add( light );
 
 
-// // Being SkyBox for images, etc.
+				waterNormals = new THREE.ImageUtils.loadTexture( 'textures/waternormals.jpg' );
+				waterNormals.wrapS = waterNormals.wrapT = THREE.RepeatWrapping;
 
-// // Load the cube textures.
-  var prefix = 'img/';
-  var urls = ['px.jpg', 'nx.jpg', 'py.jpg', 'ny.jpg', 'pz.jpg', 'nz.jpg'];
-  for (var i = 0; i < urls.length; i++) {
-    urls[i] = prefix + urls[i];
-  }
-  var cubemap = THREE.ImageUtils.loadTextureCube(urls);
-  cubemap.format = THREE.RGBFormat;
+				water = new THREE.Water( renderer, camera, scene, {
+					textureWidth: 512,
+					textureHeight: 512,
+					waterNormals: waterNormals,
+					alpha: 	0.7, //transparency of water, decrease to make clearer
+					sunDirection: light.position.clone().normalize(),
+					sunColor: 0xffffff,
+					waterColor: 0x001e0f,
+					distortionScale: 800.0, // increase to add ice effect
+				} );
 
-  // Initialize the shader.
-  var shader = THREE.ShaderLib['cube'];
-  shader.uniforms['tCube'].value = cubemap
 
-  var material = new THREE.ShaderMaterial({
-    fragmentShader: shader.fragmentShader,
-    vertexShader: shader.vertexShader,
-    uniforms: shader.uniforms,
-    depthWrite: false,
-    side: THREE.BackSide
-  });
+				mirrorMesh = new THREE.Mesh(
+					new THREE.PlaneBufferGeometry( parameters.width * 500, parameters.height * 500 ),
+					water.material
+				);
 
-//   // Build the skybox Mesh.
-   var skybox = new THREE.Mesh(new THREE.CubeGeometry(1000, 1000, 1000), material);
-//   // Add it to the scene
-   scene.add(skybox);
+				mirrorMesh.add( water );
+				mirrorMesh.rotation.x = - Math.PI * 0.5;
+				scene.add( mirrorMesh );
 
-// Create a VR manager helper to enter and exit VR mode.
-var manager = new WebVRManager(renderer, effect, {hideButton: false});
 
-// Create 3D objects.
-var geometry = new THREE.BoxGeometry(0.5, 0.5, 0.5);
-var material = new THREE.MeshNormalMaterial();
-var cube = new THREE.Mesh(geometry, material);
+				// load skybox
 
-// Position cube mesh
-cube.position.z = -1;
+				var cubeMap = new THREE.CubeTexture( [] );
+				cubeMap.format = THREE.RGBFormat;
 
-// Add cube mesh to your three.js scene
-scene.add(cube);
-// Request animation frame loop function
-function animate(timestamp) {
-  // Apply rotation to cube mesh
-  cube.rotation.y += 0.01;
+				var loader = new THREE.ImageLoader();
+				loader.load( 'textures/skyboxsun25degtest3.png', function ( image ) {
 
-  // Update VR headset position and apply to camera.
-  controls.update();
+					var getSide = function ( x, y ) {
 
-  // Render the scene through the manager.
-  manager.render(scene, camera, timestamp);
+						var size = 1024;
 
-  requestAnimationFrame(animate);
-}
+						var canvas = document.createElement( 'canvas' );
+						canvas.width = size;
+						canvas.height = size;
 
-// Kick off animation loop
-animate();
+						var context = canvas.getContext( '2d' );
+						context.drawImage( image, - x * size, - y * size );
 
-// Reset the position sensor when 'z' pressed.
-function onKey(event) {
-  if (event.keyCode == 90) { // z
-    controls.resetSensor();
-  }
-}
+						return canvas;
 
-window.addEventListener('keydown', onKey, true);
+					};
 
-</script>
+					cubeMap.images[ 0 ] = getSide( 2, 1 ); // px
+					cubeMap.images[ 1 ] = getSide( 0, 1 ); // nx
+					cubeMap.images[ 2 ] = getSide( 1, 0 ); // py
+					cubeMap.images[ 3 ] = getSide( 1, 2 ); // ny
+					cubeMap.images[ 4 ] = getSide( 1, 1 ); // pz
+					cubeMap.images[ 5 ] = getSide( 3, 1 ); // nz
+					cubeMap.needsUpdate = true;
 
+				} );
+
+				var cubeShader = THREE.ShaderLib[ 'cube' ];
+				cubeShader.uniforms[ 'tCube' ].value = cubeMap;
+
+				var skyBoxMaterial = new THREE.ShaderMaterial( {
+					fragmentShader: cubeShader.fragmentShader,
+					vertexShader: cubeShader.vertexShader,
+					uniforms: cubeShader.uniforms,
+					depthWrite: false,
+					side: THREE.BackSide
+				} );
+
+				var skyBox = new THREE.Mesh(
+					new THREE.BoxGeometry( 1000000, 1000000, 1000000 ),
+					skyBoxMaterial
+				);
+
+				scene.add( skyBox );
+
+				// var geometry = new THREE.IcosahedronGeometry( 400, 4 );
+
+				// for ( var i = 0, j = geometry.faces.length; i < j; i ++ ) {
+
+				// 	geometry.faces[ i ].color.setHex( Math.random() * 0xffffff );
+
+				// }
+
+				// var material = new THREE.MeshPhongMaterial( {
+				// 	vertexColors: THREE.FaceColors,
+				// 	shininess: 100,
+				// 	envMap: cubeMap
+				// } );
+
+				// sphere = new THREE.Mesh( geometry, material );
+
+				// scene.add( sphere );
+
+			}
+
+			//
+
+			function animate(timestamp) {
+
+				requestAnimationFrame( animate );
+				render();
+
+				// Update VR headset position and apply to camera.
+				  controls.update();
+				// Render the scene through the manager.
+				  manager.render(scene, camera, timestamp);
+
+
+			}
+
+			function render() {
+
+				var time = performance.now() * 0.001;
+
+				// sphere.position.y = Math.sin( time ) * 500 + 250;
+				// sphere.rotation.x = time * 0.5;
+				// sphere.rotation.z = time * 0.51;
+
+				water.material.uniforms.time.value += 1.0 / 7.5; // water speed (lower to increase)
+				water.render();
+				renderer.render( scene, camera );
+
+			}
+
+				// Reset the position sensor when 'z' pressed.
+	function onKey(event) {
+	  if (event.keyCode == 90) { // z
+	    controls.resetSensor();
+	  }
+	}
+
+	window.addEventListener('keydown', onKey, true);
+
+		</script>
+	</body>
 </html>
