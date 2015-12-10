@@ -105,7 +105,20 @@ WebVRConfig = {
 
 			var container, stats;
 			var camera, controls, manager, effect, scene, renderer;
-			var sphere;
+			//var sphere;
+
+			//skybox variables
+
+			
+
+			var skyBoxes = [];
+			var skyTexture = [
+			 'textures/ColumbiaGlacierSkybox5.png',
+			 'textures/ColumbiaGlacierSkybox7(Snow Test).png'
+			
+			  ];
+
+			//var texturesLoaded = 0;
 
 			var parameters = {
 				width: 2000,
@@ -119,7 +132,10 @@ WebVRConfig = {
 
 			var waterNormals;
 
+
+			
 			init();
+
 			animate();
 
 			function init() {
@@ -141,7 +157,7 @@ WebVRConfig = {
 				scene = new THREE.Scene();
 
 				camera = new THREE.PerspectiveCamera( 55, window.innerWidth / window.innerHeight, 0.5, 3000000 );
-				camera.position.set( 2000, 750, 2000 );
+				camera.position.set( 2000, 1500, 2000 );
 
 				controls = new THREE.VRControls(camera);
 				// controls.enablePan = false;
@@ -175,7 +191,7 @@ WebVRConfig = {
 					sunDirection: light.position.clone().normalize(),
 					sunColor: 0xffffff,
 					waterColor: 0x001e0f,
-					distortionScale: 800.0, // increase to add ice effect
+					distortionScale: 400.0, // increase to add ice effect
 				} );
 
 
@@ -189,13 +205,39 @@ WebVRConfig = {
 				scene.add( mirrorMesh );
 
 
-				// load skybox
+				// var geometry = new THREE.IcosahedronGeometry( 400, 4 );
 
-				var cubeMap = new THREE.CubeTexture( [] );
+				// for ( var i = 0, j = geometry.faces.length; i < j; i ++ ) {
+
+				// 	geometry.faces[ i ].color.setHex( Math.random() * 0xffffff );
+
+				// }
+
+				// var material = new THREE.MeshPhongMaterial( {
+				// 	vertexColors: THREE.FaceColors,
+				// 	shininess: 100,
+				// 	envMap: cubeMap
+				// } );
+
+				// sphere = new THREE.Mesh( geometry, material );
+
+				// scene.add( sphere );
+
+				var startingSkybox = makeSkybox (skyTexture[0]);
+				skyBoxes.push(startingSkybox);
+			}
+
+			//
+
+			function makeSkybox(skyTex) {
+				// load skybox
+				var cubeMap, loader, cubeShader, skyBoxMaterial, skyBoxMaterialTex, skyBox;
+
+				cubeMap = new THREE.CubeTexture( [] );
 				cubeMap.format = THREE.RGBFormat;
 
-				var loader = new THREE.ImageLoader();
-				loader.load( 'textures/skyboxsun25degtest3.png', function ( image ) {
+				loader = new THREE.ImageLoader();
+				loader.load( skyTex, function ( image ) {
 
 					var getSide = function ( x, y ) {
 
@@ -222,45 +264,51 @@ WebVRConfig = {
 
 				} );
 
-				var cubeShader = THREE.ShaderLib[ 'cube' ];
+				cubeShader = THREE.ShaderLib[ 'cube' ];
 				cubeShader.uniforms[ 'tCube' ].value = cubeMap;
-
-				var skyBoxMaterial = new THREE.ShaderMaterial( {
+				
+				skyBoxMaterial = new THREE.ShaderMaterial( {
 					fragmentShader: cubeShader.fragmentShader,
 					vertexShader: cubeShader.vertexShader,
 					uniforms: cubeShader.uniforms,
 					depthWrite: false,
 					side: THREE.BackSide
+					//transparent: true,
+   					//opacity: 0.0
 				} );
 
-				var skyBox = new THREE.Mesh(
+				skyBox = new THREE.Mesh(
 					new THREE.BoxGeometry( 1000000, 1000000, 1000000 ),
 					skyBoxMaterial
 				);
 
-				scene.add( skyBox );
 
-				// var geometry = new THREE.IcosahedronGeometry( 400, 4 );
-
-				// for ( var i = 0, j = geometry.faces.length; i < j; i ++ ) {
-
-				// 	geometry.faces[ i ].color.setHex( Math.random() * 0xffffff );
-
-				// }
-
-				// var material = new THREE.MeshPhongMaterial( {
-				// 	vertexColors: THREE.FaceColors,
-				// 	shininess: 100,
-				// 	envMap: cubeMap
+				// cubeShader = THREE.ShaderLib[ 'cube' ];
+				// cubeShader.uniforms[ 'tCube' ].value = cubeMap;
+				
+				// skyBoxMaterial = new THREE.ShaderMaterial( {
+				// 	fragmentShader: cubeShader.fragmentShader,
+				// 	vertexShader: cubeShader.vertexShader,
+				// 	uniforms: cubeShader.uniforms,
+				// 	depthWrite: false,
+				// 	side: THREE.BackSide
+				// 	//transparent: true,
+   	// 				//opacity: 0.0
 				// } );
 
-				// sphere = new THREE.Mesh( geometry, material );
+				// skyBoxMaterialTex = new THREE.MeshLambertMaterial( { map: skyBoxMaterial, opacity: 0.5, transparent: true } );
 
-				// scene.add( sphere );
+				// skyBox = new THREE.Mesh(
+				// 	new THREE.BoxGeometry( 1000000, 1000000, 1000000 ),
+				// 	skyBoxMaterialTex
+				// );
+
+
+				//skyBoxMaterial.opacity=0;
+				scene.add( skyBox );
+				return skyBox;
 
 			}
-
-			//
 
 			function animate(timestamp) {
 
