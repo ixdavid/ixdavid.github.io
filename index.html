@@ -231,7 +231,8 @@ WebVRConfig = {
 
 			function makeSkybox(skyTex) {
 				// load skybox
-				var cubeMap, loader, cubeShader, skyBoxMaterial, skyBoxMaterialTex, skyBox;
+				var cubeMap, loader, cubeShader, skyBoxMaterial,
+					skyBoxMaterialTex, skyBox, cubeMapMesh;
 
 				cubeMap = new THREE.CubeTexture( [] );
 				cubeMap.format = THREE.RGBFormat;
@@ -263,6 +264,8 @@ WebVRConfig = {
 					cubeMap.needsUpdate = true;
 
 				} );
+//_____________________________________________________________________
+// WORKING ORGINAL SKYBOX (non transparent version)
 
 				cubeShader = THREE.ShaderLib[ 'cube' ];
 				cubeShader.uniforms[ 'tCube' ].value = cubeMap;
@@ -281,10 +284,46 @@ WebVRConfig = {
 					new THREE.BoxGeometry( 1000000, 1000000, 1000000 ),
 					skyBoxMaterial
 				);
+//_____________________________________________________________________
+// Shader vertex attempt 1
 
 
 				// cubeShader = THREE.ShaderLib[ 'cube' ];
 				// cubeShader.uniforms[ 'tCube' ].value = cubeMap;
+				// //cubeShader.attributes.vertexOpacity: { type: 'f', value: 0.5 }},
+
+				// skyBoxMaterial = new THREE.ShaderMaterial( {
+				// 	//attributes: {vertexOpacity: { type: 'f', value: 0.5 }},
+				// 	//vertexOpacity: {type: 'f', value: 0.5},
+				// 	fragmentShader: cubeShader.fragmentShader,
+				// 	vertexShader: cubeShader.vertexShader,
+				// 	uniforms: cubeShader.uniforms,
+				// 	depthWrite: false,
+				// 	transparent: true,
+				// 	side: THREE.BackSide
+				// } );
+
+				// skyBox = new THREE.Mesh(
+				// 	new THREE.BoxGeometry( 1000000, 1000000, 1000000 ),
+				// 	skyBoxMaterial,
+				// 	material.transparent = true
+
+				// );
+
+
+//_____________________________________________________________________
+// Shader + Lamber Materials attempt 1
+
+				
+				// cubeMapMesh = new THREE.MeshLambertMaterial( {
+				// 	envMap: cubeMap, 
+				// 	transparent:true, 
+				// 	opacity: 0.5 
+				// });
+
+				// cubeShader = THREE.ShaderLib[ 'cube' ];
+				// cubeShader.uniforms[ 'tCube' ].value = cubeMapMesh;
+
 				
 				// skyBoxMaterial = new THREE.ShaderMaterial( {
 				// 	fragmentShader: cubeShader.fragmentShader,
@@ -292,19 +331,35 @@ WebVRConfig = {
 				// 	uniforms: cubeShader.uniforms,
 				// 	depthWrite: false,
 				// 	side: THREE.BackSide
-				// 	//transparent: true,
-   	// 				//opacity: 0.0
-				// } );
-
-				// skyBoxMaterialTex = new THREE.MeshLambertMaterial( { map: skyBoxMaterial, opacity: 0.5, transparent: true } );
+				// });
 
 				// skyBox = new THREE.Mesh(
 				// 	new THREE.BoxGeometry( 1000000, 1000000, 1000000 ),
-				// 	skyBoxMaterialTex
+				// 	skyBoxMaterial
+				// );
+//_____________________________________________________________________
+// Shader + Lamber Materials attempt 2
+				// cubeShader = THREE.ShaderLib[ 'cube' ];
+				// cubeShader.uniforms[ 'tCube' ].value = cubeMap;
+				
+				// skyBoxMaterial = new THREE.MeshLambertMaterial( {
+				// 	new THREE.ShaderMaterial( {
+				// 	fragmentShader: cubeShader.fragmentShader,
+				// 	vertexShader: cubeShader.vertexShader,
+				// 	uniforms: cubeShader.uniforms,
+				// 	depthWrite: false,
+				// 	side: THREE.BackSide }),
+				// 	transparent: true,
+				// 	opacity: 0.5
+				// } );
+
+				// skyBox = new THREE.Mesh(
+				// 	new THREE.BoxGeometry( 1000000, 1000000, 1000000 ),
+				// 	skyBoxMaterial
 				// );
 
+//_____________________________________________________________________
 
-				//skyBoxMaterial.opacity=0;
 				scene.add( skyBox );
 				return skyBox;
 
