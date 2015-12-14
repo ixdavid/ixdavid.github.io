@@ -94,6 +94,7 @@ WebVRConfig = {
 		<script src="js/Detector.js"></script>
 		<script src="js/libs/stats.min.js"></script>
 
+
 <script>
 
 			// if ( ! Detector.webgl ) {
@@ -105,17 +106,45 @@ WebVRConfig = {
 
 			var container, stats;
 			var camera, controls, manager, effect, scene, renderer;
-			//var sphere;
-
-			//skybox variables
-
 			
+			//sphere______________________________
+			var sphere;
+
+			//particles______________________________
+			var cameraSnow, sceneSnow;
+
+			var mesh, lightMesh, geometry;
+			var spheresSnow = [];
+
+
+			//skybox___________________________________________
+
+			var skyBox;
+			var currentSkyBoxTexture = 0;
 
 			var skyBoxes = [];
 			var skyTexture = [
-			 'textures/ColumbiaGlacierSkybox5.png',
-			 'textures/ColumbiaGlacierSkybox7(Snow Test).png'
-			
+			 'GlacierSkyboxTextures/ColumbiaGlacierSkyboxTexture1.png',
+			 'GlacierSkyboxTextures/ColumbiaGlacierSkyboxTexture2.png',
+			 'GlacierSkyboxTextures/ColumbiaGlacierSkyboxTexture3.png',
+			 'GlacierSkyboxTextures/ColumbiaGlacierSkyboxTexture4.png',
+			 'GlacierSkyboxTextures/ColumbiaGlacierSkyboxTexture5.png',
+			 'GlacierSkyboxTextures/ColumbiaGlacierSkyboxTexture6.png',
+			 'GlacierSkyboxTextures/ColumbiaGlacierSkyboxTexture7.png',
+			 'GlacierSkyboxTextures/ColumbiaGlacierSkyboxTexture8.png',
+			 'GlacierSkyboxTextures/ColumbiaGlacierSkyboxTexture9.png',
+			 'GlacierSkyboxTextures/ColumbiaGlacierSkyboxTexture10.png',
+			 'GlacierSkyboxTextures/ColumbiaGlacierSkyboxTexture11.png',
+			 'GlacierSkyboxTextures/ColumbiaGlacierSkyboxTexture12.png',
+			 'GlacierSkyboxTextures/ColumbiaGlacierSkyboxTexture13.png',
+			 'GlacierSkyboxTextures/ColumbiaGlacierSkyboxTexture14.png',
+			 'GlacierSkyboxTextures/ColumbiaGlacierSkyboxTexture15.png',
+			 'GlacierSkyboxTextures/ColumbiaGlacierSkyboxTexture16.png',
+			 'GlacierSkyboxTextures/ColumbiaGlacierSkyboxTexture17.png',
+			 'GlacierSkyboxTextures/ColumbiaGlacierSkyboxTexture18.png',
+			 'GlacierSkyboxTextures/ColumbiaGlacierSkyboxTexture19.png',
+			 'GlacierSkyboxTextures/ColumbiaGlacierSkyboxTexture20.png'
+
 			  ];
 
 			//var texturesLoaded = 0;
@@ -132,54 +161,84 @@ WebVRConfig = {
 
 			var waterNormals;
 
-
 			
 			init();
-
 			animate();
 
 			function init() {
 
-				// container = document.createElement( 'div' );
-				// document.body.appendChild( container );
 
-				renderer = new THREE.WebGLRenderer({ antialias: true });
+				renderer = new THREE.WebGLRenderer({ antialias: true
+					//, alpha: true 
+					});
 				renderer.setPixelRatio( window.devicePixelRatio );
-				
+
 				// Append the canvas element created by the renderer to document body element.
 				document.body.appendChild(renderer.domElement);
 
-				// renderer.setSize( window.innerWidth, window.innerHeight );
-				// container.appendChild( renderer.domElement );
-
 				renderer.setClearColor (0xffffff);
+				renderer.autoClear = false;
 
+				// container = document.createElement( 'div' );
+				// document.body.appendChild( container );
+				
+				
+				sceneSnow = new THREE.Scene();
 				scene = new THREE.Scene();
 
+
+				cameraSnow = new THREE.PerspectiveCamera( 55, window.innerWidth / window.innerHeight, 0.5, 3000000 );
+				cameraSnow.position.z = 2000000;
+				
 				camera = new THREE.PerspectiveCamera( 55, window.innerWidth / window.innerHeight, 0.5, 3000000 );
-				camera.position.set( 2000, 1500, 2000 );
+				camera.position.set( 2000, 1000, 2000 );
 
-				controls = new THREE.VRControls(camera);
-				// controls.enablePan = false;
-				// controls.minDistance = 1000.0;
-				// controls.maxDistance = 5000.0;
-				// controls.maxPolarAngle = Math.PI * 0.495;
-				// controls.center.set( 0, 500, 0 );
+			//controls VR etc.
+			controls = new THREE.VRControls(camera);
 
+			effect = new THREE.VREffect(renderer);
+			effect.setSize(window.innerWidth, window.innerHeight);
 
-				effect = new THREE.VREffect(renderer);
-				effect.setSize(window.innerWidth, window.innerHeight);
-
-				// Create a VR manager helper to enter and exit VR mode.
-				manager = new WebVRManager(renderer, effect, {hideButton: false});
+			// Create a VR manager helper to enter and exit VR mode.
+			manager = new WebVRManager(renderer, effect, {hideButton: false});
+				
+				
+		// Light_________________
 
 				scene.add( new THREE.AmbientLight( 0x444444 ) );
 
 				var light = new THREE.DirectionalLight( 0xffffbb, 1 );
 				light.position.set( - 1, 1, - 1 );
 				scene.add( light );
+				
+		// Snow Shit ________
+				var geometrySnow = new THREE.SphereBufferGeometry( 2, 32, 16 );
+
+				var materialSnow = new THREE.MeshBasicMaterial( { color: 0xEDF4F8, 
+					//envMap: skyTexture[0], 
+					refractionRatio: 0.95
+					//transparency : true,
+					//opacity : 0.25 
+					} );
+
+				for ( var i = 0; i < 1000; i ++ ) {
+
+					var meshSnow = new THREE.Mesh( geometrySnow, materialSnow );
+
+					meshSnow.position.x = Math.random() * 10000 - 5000;
+					meshSnow.position.y = Math.random() * 10000 - 5000;
+					meshSnow.position.z = Math.random() * 10000 - 5000;
+
+					meshSnow.scale.x = meshSnow.scale.y = meshSnow.scale.z = Math.random() * 3 + 1;
+
+					scene.add( meshSnow );
+
+					spheresSnow.push( meshSnow );
 
 
+				}				
+
+		// Water
 				waterNormals = new THREE.ImageUtils.loadTexture( 'textures/waternormals.jpg' );
 				waterNormals.wrapS = waterNormals.wrapT = THREE.RepeatWrapping;
 
@@ -187,7 +246,7 @@ WebVRConfig = {
 					textureWidth: 512,
 					textureHeight: 512,
 					waterNormals: waterNormals,
-					alpha: 	0.85, //transparency of water, decrease to make clearer
+					alpha: 	0.75, //transparency of water, decrease to make clearer
 					sunDirection: light.position.clone().normalize(),
 					sunColor: 0xffffff,
 					waterColor: 0x001e0f,
@@ -205,41 +264,47 @@ WebVRConfig = {
 				scene.add( mirrorMesh );
 
 
-				// var geometry = new THREE.IcosahedronGeometry( 400, 4 );
 
-				// for ( var i = 0, j = geometry.faces.length; i < j; i ++ ) {
+//sphere stuff__________________________________________
+				
+				var geometry = new THREE.IcosahedronGeometry( 400, 4 );
 
-				// 	geometry.faces[ i ].color.setHex( Math.random() * 0xffffff );
+				for ( var i = 0, j = geometry.faces.length; i < j; i ++ ) {
 
-				// }
+					geometry.faces[ i ].color.setHex( Math.random() * 0xffffff );
 
-				// var material = new THREE.MeshPhongMaterial( {
-				// 	vertexColors: THREE.FaceColors,
-				// 	shininess: 100,
-				// 	envMap: cubeMap
-				// } );
+				}
 
-				// sphere = new THREE.Mesh( geometry, material );
+				var material = new THREE.MeshPhongMaterial( {
+					vertexColors: THREE.FaceColors,
+					shininess: 100//,
+					//envMap: cubeMap
+				} );
 
-				// scene.add( sphere );
+				sphere = new THREE.Mesh( geometry, material );
 
-				var startingSkybox = makeSkybox (skyTexture[0]);
-				skyBoxes.push(startingSkybox);
-			}
+				//scene.add( sphere );
 
-			//
+//skybox___________________________
+
+				
+				
+				makeSkybox (skyTexture[currentSkyBoxTexture]);
+
+//End init '}' _________________________________
+				
+		}
+			
 
 			function makeSkybox(skyTex) {
 				// load skybox
-				var cubeMap, loader, cubeShader, skyBoxMaterial,
-					skyBoxMaterialTex, skyBox, cubeMapMesh;
-
+				var cubeMap, loader;
+				
 				cubeMap = new THREE.CubeTexture( [] );
 				cubeMap.format = THREE.RGBFormat;
-
+				
 				loader = new THREE.ImageLoader();
 				loader.load( skyTex, function ( image ) {
-
 					var getSide = function ( x, y ) {
 
 						var size = 1024;
@@ -250,7 +315,6 @@ WebVRConfig = {
 
 						var context = canvas.getContext( '2d' );
 						context.drawImage( image, - x * size, - y * size );
-
 						return canvas;
 
 					};
@@ -263,143 +327,88 @@ WebVRConfig = {
 					cubeMap.images[ 5 ] = getSide( 3, 1 ); // nz
 					cubeMap.needsUpdate = true;
 
+					var cubeShader = THREE.ShaderLib[ 'cube' ];
+					cubeShader.uniforms[ 'tCube' ].value = cubeMap;
+					
+					var skyBoxMaterial = new THREE.ShaderMaterial( {
+						fragmentShader: cubeShader.fragmentShader,
+						vertexShader: cubeShader.vertexShader,
+						uniforms: cubeShader.uniforms,
+						depthWrite: false,
+						side: THREE.BackSide					
+					} );
+
+					 
+					skyBox = new THREE.Mesh(
+						new THREE.BoxGeometry( 1000000, 1000000, 1000000 ),
+						skyBoxMaterial
+					);
+
+					//skyBox.visible = false;
+					scene.add( skyBox );
+					return skyBox;
+
 				} );
-//_____________________________________________________________________
-// WORKING ORGINAL SKYBOX (non transparent version)
-
-				cubeShader = THREE.ShaderLib[ 'cube' ];
-				cubeShader.uniforms[ 'tCube' ].value = cubeMap;
-				
-				skyBoxMaterial = new THREE.ShaderMaterial( {
-					fragmentShader: cubeShader.fragmentShader,
-					vertexShader: cubeShader.vertexShader,
-					uniforms: cubeShader.uniforms,
-					depthWrite: false,
-					side: THREE.BackSide
-					//transparent: true,
-   					//opacity: 0.0
-				} );
-
-				skyBox = new THREE.Mesh(
-					new THREE.BoxGeometry( 1000000, 1000000, 1000000 ),
-					skyBoxMaterial
-				);
-//_____________________________________________________________________
-// Shader vertex attempt 1
-
-
-				// cubeShader = THREE.ShaderLib[ 'cube' ];
-				// cubeShader.uniforms[ 'tCube' ].value = cubeMap;
-				// //cubeShader.attributes.vertexOpacity: { type: 'f', value: 0.5 }},
-
-				// skyBoxMaterial = new THREE.ShaderMaterial( {
-				// 	//attributes: {vertexOpacity: { type: 'f', value: 0.5 }},
-				// 	//vertexOpacity: {type: 'f', value: 0.5},
-				// 	fragmentShader: cubeShader.fragmentShader,
-				// 	vertexShader: cubeShader.vertexShader,
-				// 	uniforms: cubeShader.uniforms,
-				// 	depthWrite: false,
-				// 	transparent: true,
-				// 	side: THREE.BackSide
-				// } );
-
-				// skyBox = new THREE.Mesh(
-				// 	new THREE.BoxGeometry( 1000000, 1000000, 1000000 ),
-				// 	skyBoxMaterial,
-				// 	material.transparent = true
-
-				// );
-
-
-//_____________________________________________________________________
-// Shader + Lamber Materials attempt 1
-
-				
-				// cubeMapMesh = new THREE.MeshLambertMaterial( {
-				// 	envMap: cubeMap, 
-				// 	transparent:true, 
-				// 	opacity: 0.5 
-				// });
-
-				// cubeShader = THREE.ShaderLib[ 'cube' ];
-				// cubeShader.uniforms[ 'tCube' ].value = cubeMapMesh;
-
-				
-				// skyBoxMaterial = new THREE.ShaderMaterial( {
-				// 	fragmentShader: cubeShader.fragmentShader,
-				// 	vertexShader: cubeShader.vertexShader,
-				// 	uniforms: cubeShader.uniforms,
-				// 	depthWrite: false,
-				// 	side: THREE.BackSide
-				// });
-
-				// skyBox = new THREE.Mesh(
-				// 	new THREE.BoxGeometry( 1000000, 1000000, 1000000 ),
-				// 	skyBoxMaterial
-				// );
-//_____________________________________________________________________
-// Shader + Lamber Materials attempt 2
-				// cubeShader = THREE.ShaderLib[ 'cube' ];
-				// cubeShader.uniforms[ 'tCube' ].value = cubeMap;
-				
-				// skyBoxMaterial = new THREE.MeshLambertMaterial( {
-				// 	new THREE.ShaderMaterial( {
-				// 	fragmentShader: cubeShader.fragmentShader,
-				// 	vertexShader: cubeShader.vertexShader,
-				// 	uniforms: cubeShader.uniforms,
-				// 	depthWrite: false,
-				// 	side: THREE.BackSide }),
-				// 	transparent: true,
-				// 	opacity: 0.5
-				// } );
-
-				// skyBox = new THREE.Mesh(
-				// 	new THREE.BoxGeometry( 1000000, 1000000, 1000000 ),
-				// 	skyBoxMaterial
-				// );
-
-//_____________________________________________________________________
-
-				scene.add( skyBox );
-				return skyBox;
-
 			}
 
-			function animate(timestamp) {
 
-				requestAnimationFrame( animate );
-				render();
+	function animate(timestamp) {
 
-				// Update VR headset position and apply to camera.
-				  controls.update();
-				// Render the scene through the manager.
-				  manager.render(scene, camera, timestamp);
+		requestAnimationFrame( animate );
 
+		// Update VR headset position and apply to camera.
+		controls.update();
 
-			}
+		// Render the scene through the manager.
+		manager.render(scene, camera, timestamp);
 
-			function render() {
+		render();
 
-				var time = performance.now() * 0.001;
+	}
 
-				// sphere.position.y = Math.sin( time ) * 500 + 250;
-				// sphere.rotation.x = time * 0.5;
-				// sphere.rotation.z = time * 0.51;
+	function render() {
 
-				water.material.uniforms.time.value += 1.0 / 7.5; // water speed (lower to increase)
-				water.render();
-				renderer.render( scene, camera );
+		var time = performance.now() * 0.001;
 
-			}
+ 	//________ SNOW
+		var timerSnow = 0.0001 * Date.now();
 
-				// Reset the position sensor when 'z' pressed.
-	function onKey(event) {
+		for ( var i = 0, il = spheresSnow.length; i < il; i ++ ) {
+
+		var sphereSnow = spheresSnow[ i ];
+
+		sphereSnow.position.x = 5000 * Math.cos( timerSnow + i );
+		sphereSnow.position.y = 5000 * Math.sin( timerSnow + i * 1.1 );
+	}
+
+	// Previously commented sphere stuff
+		sphere.position.y = Math.sin( time ) * 1;
+		sphere.position.x = 20000;
+		sphere.position.z = 25000;
+		sphere.rotation.x = time * 0.5;
+		sphere.rotation.z = time * 0.51;
+
+		water.material.uniforms.time.value += 1.0 / 7.5; // water speed (lower to increase)
+		water.render();
+		
+		renderer.render( scene, camera);
+
+		renderer.render( sceneSnow, cameraSnow);
+			
+		}
+
+// Reset the position sensor when 'z' pressed.
+
+function onKey(event) {
 	  if (event.keyCode == 90) { // z
 	    controls.resetSensor();
 	  }
-	}
+	  //if(currentSkyBoxTexture == skyTexture.length-1) 
+	  currentSkyBoxTexture++;
+	  makeSkybox (skyTexture[currentSkyBoxTexture]);
+}
 
-	window.addEventListener('keydown', onKey, true);
+window.addEventListener('keydown', onKey, true);
 
 		</script>
 	</body>
