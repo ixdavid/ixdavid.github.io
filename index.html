@@ -514,7 +514,7 @@ WebVRConfig = {
 
 	// Water stuff
   //       waterMovt();
-		// water.material.uniforms.time.value += waterSpeed;         
+		water.material.uniforms.time.value += 0.1;         
   //       function waterIce(){
   //           if(currentSkyBoxTexture==0){
   //               return waterTransparency = 1;
@@ -545,7 +545,9 @@ WebVRConfig = {
   //       waterIce();
 		water.material.uniforms.time.value += 1.0 / 7.5; // water speed (lower to increase)
 		water.render();
+
 		renderer.render( scene, camera);
+
 		}
         
     // function waterMovt(){
