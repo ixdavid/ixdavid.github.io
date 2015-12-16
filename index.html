@@ -334,7 +334,7 @@ WebVRConfig = {
 						//opacity : 0.25 
 						} );
 
-					for ( var i = 0; i < 1500; i ++ ) {
+					for ( var i = 0; i < 2000; i ++ ) {
 
 						var meshSnow = new THREE.Mesh( geometrySnow, materialSnow );
 
@@ -357,7 +357,7 @@ WebVRConfig = {
 						textureWidth: 512,
 						textureHeight: 512,
 						waterNormals: waterNormals,
-						alpha: .6, //transparency of water, decrease to make clearer
+						alpha: .65, //transparency of water, decrease to make clearer
 						sunDirection: light.position.clone().normalize(),
 						sunColor: 0xffffff,
 						waterColor: 0x001e0f,
@@ -543,6 +543,7 @@ WebVRConfig = {
   //       }
         
   //       waterIce();
+		water.material.uniforms.time.value += 1.0 / 7.5; // water speed (lower to increase)
 		water.render();
 		renderer.render( scene, camera);
 		}
