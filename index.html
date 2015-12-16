@@ -198,7 +198,7 @@ WebVRConfig = {
 				param: 4,
 				filterparam: 1
 			};
-            var waterSpeed,waterTransparency ;
+            //var waterSpeed,waterTransparency ;
 			var waterNormals;
 
 //_________________________________________________
@@ -326,7 +326,7 @@ WebVRConfig = {
     //             });
 
 		// Snow ______________________________
-					var geometrySnow = new THREE.SphereBufferGeometry( 4, 32, 12 );
+					var geometrySnow = new THREE.SphereBufferGeometry( 10, 32, 12 );
 
 					var materialSnow = new THREE.MeshBasicMaterial( { color: 0xEDF4F8, 
 						//envMap: skyTexture[0], 
@@ -335,7 +335,7 @@ WebVRConfig = {
 						//opacity : 0.25 
 						} );
 
-					for ( var i = 0; i < 3000; i ++ ) {
+					for ( var i = 0; i < 1500; i ++ ) {
 
 						var meshSnow = new THREE.Mesh( geometrySnow, materialSnow );
 
@@ -358,7 +358,7 @@ WebVRConfig = {
 						textureWidth: 512,
 						textureHeight: 512,
 						waterNormals: waterNormals,
-						alpha: waterTransparency , //transparency of water, decrease to make clearer
+						alpha: .675, //transparency of water, decrease to make clearer
 						sunDirection: light.position.clone().normalize(),
 						sunColor: 0xffffff,
 						waterColor: 0x001e0f,
@@ -514,60 +514,60 @@ WebVRConfig = {
 	// 	sphere.rotation.z = time * 0.51;
 
 	// Water stuff
-        waterMovt();
-		water.material.uniforms.time.value += waterSpeed;         
-        function waterIce(){
-            if(currentSkyBoxTexture==0){
-                return waterTransparency = 1;
-                console.log("watertrasparency:1");
-            }
-            else if(currentSkyBoxTexture==1){
-                return waterTransparency =0.6;
-                console.log("watertrasparency:0.6");
-            }
-            else if(currentSkyBoxTexture==2){
-                return waterTransparency =0.5;
-                console.log("watertrasparency:0.5");
-            }
-            else if(currentSkyBoxTexture==3){
-                return waterTransparency =0.4;
-                console.log("watertrasparency:0.4");
-            }
-            else if(currentSkyBoxTexture==4){
-                return waterTransparency =0.3;
-                console.log("watertrasparency:0.3");
-            }
-            else if(currentSkyBoxTexture==5){
-                return waterTransparency =0.2;
-                console.log("watertrasparency:0.2");
-            }
-        }
+  //       waterMovt();
+		// water.material.uniforms.time.value += waterSpeed;         
+  //       function waterIce(){
+  //           if(currentSkyBoxTexture==0){
+  //               return waterTransparency = 1;
+  //               console.log("watertrasparency:1");
+  //           }
+  //           else if(currentSkyBoxTexture==1){
+  //               return waterTransparency =0.6;
+  //               console.log("watertrasparency:0.6");
+  //           }
+  //           else if(currentSkyBoxTexture==2){
+  //               return waterTransparency =0.5;
+  //               console.log("watertrasparency:0.5");
+  //           }
+  //           else if(currentSkyBoxTexture==3){
+  //               return waterTransparency =0.4;
+  //               console.log("watertrasparency:0.4");
+  //           }
+  //           else if(currentSkyBoxTexture==4){
+  //               return waterTransparency =0.3;
+  //               console.log("watertrasparency:0.3");
+  //           }
+  //           else if(currentSkyBoxTexture==5){
+  //               return waterTransparency =0.2;
+  //               console.log("watertrasparency:0.2");
+  //           }
+  //       }
         
-        waterIce();
+  //       waterIce();
 		water.render();
 		renderer.render( scene, camera);
 		}
         
-    function waterMovt(){
-        if(currentSkyBoxTexture==0){
-           return  waterSpeed=0.1;
-        }
-        else if(currentSkyBoxTexture==1){
-            return waterSpeed=0.07;
-        }
-        else if(currentSkyBoxTexture==2){
-            waterSpeed=0.05;
-        }
-        else if(currentSkyBoxTexture==3){
-            return waterSpeed=0.03;
-        }
-        else if(currentSkyBoxTexture==4){
-            return waterSpeed=0.01;
-        }
-        else if(currentSkyBoxTexture=5){
-           return  waterSpeed=0.009;
-        }
-    }
+    // function waterMovt(){
+    //     if(currentSkyBoxTexture==0){
+    //        return  waterSpeed=0.1;
+    //     }
+    //     else if(currentSkyBoxTexture==1){
+    //         return waterSpeed=0.07;
+    //     }
+    //     else if(currentSkyBoxTexture==2){
+    //         waterSpeed=0.05;
+    //     }
+    //     else if(currentSkyBoxTexture==3){
+    //         return waterSpeed=0.03;
+    //     }
+    //     else if(currentSkyBoxTexture==4){
+    //         return waterSpeed=0.01;
+    //     }
+    //     else if(currentSkyBoxTexture=5){
+    //        return  waterSpeed=0.009;
+    //     }
+    // }
     
     
     function autoSkyboxChange(){
@@ -588,7 +588,7 @@ WebVRConfig = {
                currentSkyBoxTexture--;
                makeSkybox (skyTexture[currentSkyBoxTexture]);
             }
-            setTimeout("autoSkyboxChange()", 3000);
+            setTimeout("autoSkyboxChange()", 10000);
       }
     
     
