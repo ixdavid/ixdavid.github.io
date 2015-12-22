@@ -556,7 +556,7 @@ WebVRConfig = {
         
     function waterMovt(){
         if(currentSkyBoxTexture==0){
-            water.material.uniforms.time.value =0.1;
+            water.material.uniforms.time.value +=0.1;
         }
         else if(currentSkyBoxTexture==1){
              water.material.uniforms.time.value += 0.07;      
