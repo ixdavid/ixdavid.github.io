@@ -358,7 +358,7 @@ WebVRConfig = {
 						textureWidth: 512,
 						textureHeight: 512,
 						waterNormals: waterNormals,
-						alpha: 0.65, //transparency of water, decrease to make clearer
+						alpha: 0.7, //transparency of water, decrease to make clearer
 						sunDirection: light.position.clone().normalize(),
 						sunColor: 0xffffff,
 						waterColor: 0x001e0f,
@@ -556,22 +556,22 @@ WebVRConfig = {
         
     function waterMovt(){
         if(currentSkyBoxTexture==0){
-            water.material.uniforms.time.value +=0.1;
+            water.material.uniforms.time.value +=0.5;
         }
         else if(currentSkyBoxTexture==1){
-             water.material.uniforms.time.value += 0.07;      
+             water.material.uniforms.time.value += 0.3;      
         }
         else if(currentSkyBoxTexture==2){
-	        water.material.uniforms.time.value += 0.05;      
+	        water.material.uniforms.time.value += 0.15;      
         }
         else if(currentSkyBoxTexture==3){
-        water.material.uniforms.time.value += 0.03;      
+        water.material.uniforms.time.value += 0.09;      
         }
         else if(currentSkyBoxTexture==4){
-	        water.material.uniforms.time.value += 0.01;      
+	        water.material.uniforms.time.value += 0.05;      
         }
         else if(currentSkyBoxTexture=5){
-	        water.material.uniforms.time.value += 0.009;      
+	        water.material.uniforms.time.value += 0.025;      
         }
     }
     
