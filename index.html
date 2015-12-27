@@ -213,6 +213,11 @@ WebVRConfig = {
 				camera.position.set( 2000, 1000, 2000 );
 
 		
+                
+//Audio------------------------------
+                var audio = new Audio('Glacier Soundtrack.wav');
+                audio.play();
+                
 // VR___________________________
 
 				//controls VR etc.
@@ -223,11 +228,6 @@ WebVRConfig = {
 
 				// Create a VR manager helper to enter and exit VR mode.
 				manager = new WebVRManager(renderer, effect, {hideButton: false});
-
-
-//Audio------------------------------
-                var audio = new Audio('Glacier Soundtrack.wav');
-                audio.play();
 		
 				
 // Light_________________
