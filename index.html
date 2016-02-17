@@ -385,13 +385,11 @@ WebVRConfig = {
     
     
     function autoSkyboxChange(){
-        for(var i = 0; i <skyTexture.length;i++){
             if(currentSkyBoxTexture==0){//at the first position, gouparray is true
               goUpArray = true;
             }
             if (currentSkyBoxTexture==skyTexture.length-1){ //at the last position it is false
                   goUpArray=false;
-            }
             }
 
           if (goUpArray){ //keep them looping forward as long as gouparray is true
